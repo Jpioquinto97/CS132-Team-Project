@@ -1,4 +1,7 @@
 package com.todolist.app;
+/// Edited and filled in by Faith on 02-21-2026. Code notes are in the teams group chat of 
+/// changes and google drive folder on a word doc!! :)
+package com.todolist.app;
 
 /**
  * Represents a single task in the to-do list
@@ -7,66 +10,55 @@ package com.todolist.app;
  * @author CS132 Team (Jonathon, Bryant, Faith, Jason)
  */
 public class Task {
-    private String title;
-    private String description;
-    private boolean isCompleted;
+    // NOTE: Private fields to encapsulate task data
+    // These can only be accessed through public methods (getters/setters)
+    private String title;        // Stores the task name/title
+    private String description;  // Stores detailed task description
+    private boolean isCompleted; // Tracks whether task is done (true) or not (false)
     
-    /**
-     * Constructor to create a new task
-     * @param title The task title
-     * @param description The task description
-     */
     public Task(String title, String description) {
+        // NOTE: Initialize task with user-provided title and description
         this.title = title;
         this.description = description;
+        // NOTE: New tasks are always created as not completed
+        // User must explicitly mark them as done later
         this.isCompleted = false;
     }
-    
-    /**
-     * Gets the task title
-     * @return Task title
-     */
     public String getTitle() {
+        // NOTE: Getter method to access private title field
+        // Provides read-only access to title without allowing direct modification
         return title;
     }
-    
-    /**
-     * Gets the task description
-     * @return Task description
-     */
     public String getDescription() {
+        // NOTE: Getter method to access private description field
+        // Allows other classes to view task details
         return description;
     }
-    
-    /**
-     * Checks if task is completed
-     * @return true if completed, false otherwise
-     */
     public boolean isCompleted() {
+        // NOTE: Getter method to check completion status
+        // Returns boolean indicating if task is done
         return isCompleted;
     }
-    
-    /**
-     * Marks the task as completed
-     */
     public void markAsCompleted() {
+        // NOTE: Setter method to update completion status
+        // Once a task is marked complete, this change is permanent
         this.isCompleted = true;
     }
-    
-    /**
-     * Displays task information
-     */
     public void displayTask() {
+        // NOTE: Format task display for console output
+        // Uses [X] for completed tasks and [ ] for incomplete tasks
         String status = isCompleted ? "[X]" : "[ ]";
+        // NOTE: Display task title with status checkbox
         System.out.println(status + " " + title);
+        
+        // NOTE: Display description indented for better readability
         System.out.println("    Description: " + description);
     }
-    
-    /**
-     * Converts task to string format for file storage
-     * @return String representation of task
-     */
     public String toFileString() {
+        // NOTE: Convert task object to storable string format
+        // Uses pipe (|) as delimiter to separate fields
+        // Format: title|description|isCompleted
+        // Example: "Buy groceries|Milk and eggs|false"
         return title + "|" + description + "|" + isCompleted;
     }
     
@@ -76,11 +68,19 @@ public class Task {
      * @return Task object
      */
     public static Task fromFileString(String fileString) {
+        // NOTE: Static factory method to recreate task from saved string
+        // Splits the string using pipe delimiter (escaped as \\| in regex)
         String[] parts = fileString.split("\\|");
+        
+        // NOTE: Create new task using the first two parts (title and description)
         Task task = new Task(parts[0], parts[1]);
+        
+        // NOTE: Restore completion status from the third part
+        // If saved as "true", mark task as completed
         if (parts[2].equals("true")) {
             task.markAsCompleted();
         }
+        
         return task;
     }
 }
