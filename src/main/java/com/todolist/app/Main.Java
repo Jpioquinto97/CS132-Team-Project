@@ -117,7 +117,7 @@ private static void addTask(Scanner scanner, User user) {
         title = scanner.nextLine().trim();
     }
 
-    System.out.print("Enter task description: "):
+    System.out.print("Enter task description: ");
     String description = scanner.nextLine().trim();
 
     user.addTask(new Task(title, description));
