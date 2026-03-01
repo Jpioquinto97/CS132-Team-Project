@@ -1,86 +1,258 @@
-// package com.todolist.app;
-/// Edited and filled in by Faith on 02-21-2026. Code notes are in the teams group chat of 
-/// changes and google drive folder on a word doc!! :)
-package com.todolist.app;
+/// CS132 Authors: Faith, Jason, Bryant
+/// Task.java - Data Model with Progress Tracking
+/// Purpose: Represents a single task with progress tracking capability
 
-/**
- * Represents a single task in the to-do list
- * Contains task information and completion status
- * 
- * @author CS132 Team (Jonathon, Bryant, Faith, Jason)
- */
+import java.util.ArrayList;
+
 public class Task {
-    // NOTE: Private fields to encapsulate task data
-    // These can only be accessed through public methods (getters/setters)
-    private String title;        // Stores the task name/title
-    private String description;  // Stores detailed task description
-    private boolean isCompleted; // Tracks whether task is done (true) or not (false)
-    
+    private String title;
+    private String description;
+    private boolean isCompleted;
+    private int progressPercentage; // Track progress 0-100%
+    private ArrayList<SubTask> subTasks; // Subtasks for detailed tracking
+
+    /// Constructor creates a new incomplete task
+
     public Task(String title, String description) {
-        // NOTE: Initialize task with user-provided title and description
         this.title = title;
         this.description = description;
-        // NOTE: New tasks are always created as not completed
-        // User must explicitly mark them as done later
         this.isCompleted = false;
+        this.progressPercentage = 0;
+        this.subTasks = new ArrayList<>();
     }
+
+    // Getters and setters
     public String getTitle() {
-        // NOTE: Getter method to access private title field
-        // Provides read-only access to title without allowing direct modification
         return title;
     }
+
     public String getDescription() {
-        // NOTE: Getter method to access private description field
-        // Allows other classes to view task details
         return description;
     }
+
     public boolean isCompleted() {
-        // NOTE: Getter method to check completion status
-        // Returns boolean indicating if task is done
         return isCompleted;
     }
-    public void markAsCompleted() {
-        // NOTE: Setter method to update completion status
-        // Once a task is marked complete, this change is permanent
-        this.isCompleted = true;
+
+    public int getProgressPercentage() {
+        return progressPercentage;
     }
-    public void displayTask() {
-        // NOTE: Format task display for console output
-        // Uses [X] for completed tasks and [ ] for incomplete tasks
-        String status = isCompleted ? "[X]" : "[ ]";
-        // NOTE: Display task title with status checkbox
-        System.out.println(status + " " + title);
-        
-        // NOTE: Display description indented for better readability
-        System.out.println("    Description: " + description);
+
+    public ArrayList<SubTask> getSubTasks() {
+        return subTasks;
     }
-    public String toFileString() {
-        // NOTE: Convert task object to storable string format
-        // Uses pipe (|) as delimiter to separate fields
-        // Format: title|description|isCompleted
-        // Example: "Buy groceries|Milk and eggs|false"
-        return title + "|" + description + "|" + isCompleted;
-    }
-    
-    /**
-     * Creates a Task object from file string
-     * @param fileString String from file
-     * @return Task object
-     */
-    public static Task fromFileString(String fileString) {
-        // NOTE: Static factory method to recreate task from saved string
-        // Splits the string using pipe delimiter (escaped as \\| in regex)
-        String[] parts = fileString.split("\\|");
-        
-        // NOTE: Create new task using the first two parts (title and description)
-        Task task = new Task(parts[0], parts[1]);
-        
-        // NOTE: Restore completion status from the third part
-        // If saved as "true", mark task as completed
-        if (parts[2].equals("true")) {
-            task.markAsCompleted();
+
+    /// Sets completion status and updates progress
+
+    public void setCompleted(boolean completed) {
+        isCompleted = completed;
+        if (completed) {
+            progressPercentage = 100;
+            // Mark all subtasks as complete
+            for (SubTask subTask : subTasks) {
+                subTask.setCompleted(true);
+            }
         }
-        
+    }
+
+    /// Adds a subtask to this task
+
+    public void addSubTask(SubTask subTask) {
+        subTasks.add(subTask);
+        updateProgress(); // Recalculate progress when subtask added
+    }
+
+    /// Updates progress percentage based on subtasks
+    public void updateProgress() {
+        if (subTasks.isEmpty()) {
+            // If no subtasks, progress is either 0 or 100
+            progressPercentage = isCompleted ? 100 : 0;
+        } else {
+            // Calculate average progress of all subtasks
+            int totalProgress = 0;
+            for (SubTask subTask : subTasks) {
+                totalProgress += subTask.getProgressPercentage();
+            }
+            progressPercentage = totalProgress / subTasks.size();
+
+            // Auto-mark complete if all subtasks are done
+            if (progressPercentage == 100) {
+                isCompleted = true;
+            }
+        }
+    }
+
+    /// Creates a visual progress bar
+
+    public String getProgressBar(int length) {
+        int filledLength = (int) Math.round(length * progressPercentage / 100.0);
+        StringBuilder bar = new StringBuilder();
+
+        bar.append("[");
+        for (int i = 0; i < length; i++) {
+            if (i < filledLength) {
+                bar.append("█"); // Filled block
+            } else {
+                bar.append("░"); // Empty block
+            }
+        }
+        bar.append("] ");
+        bar.append(progressPercentage).append("%");
+
+        return bar.toString();
+    }
+
+    /// Returns formatted string with progress bar
+
+    public String getDisplayString() {
+        StringBuilder display = new StringBuilder();
+
+        // Add title and description
+        display.append(title);
+        if (description != null && !description.isEmpty()) {
+            display.append(" - ").append(description);
+        }
+        display.append("\n");
+
+        // Add progress bar
+        display.append("  Progress: ").append(getProgressBar(20)).append("\n");
+
+        // Add subtasks if any
+        if (!subTasks.isEmpty()) {
+            display.append("  Subtasks:\n");
+            for (int i = 0; i < subTasks.size(); i++) {
+                SubTask subTask = subTasks.get(i);
+                display.append("    ").append(i + 1).append(". ");
+                display.append(subTask.getDisplayString(15)).append("\n");
+            }
+        }
+
+        return display.toString();
+    }
+
+    /// Converts task to string for file storage
+
+    public String toFileString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(title).append("|").append(description).append("|")
+                .append(isCompleted).append("|").append(progressPercentage);
+
+        // Save subtasks if any
+        if (!subTasks.isEmpty()) {
+            sb.append("|SUBTASKS:");
+            for (SubTask subTask : subTasks) {
+                sb.append(subTask.toFileString()).append(";");
+            }
+        }
+
+        return sb.toString();
+    }
+
+    /// Creates Task object from file string
+
+    public static Task fromFileString(String line) {
+        String[] parts = line.split("\\|");
+        Task task = new Task(parts[0], parts[1]);
+        task.setCompleted(Boolean.parseBoolean(parts[2]));
+        task.progressPercentage = Integer.parseInt(parts[3]);
+
+        // Load subtasks if present
+        if (parts.length > 4 && parts[4].startsWith("SUBTASKS:")) {
+            String subtaskData = parts[4].substring(9); // Remove "SUBTASKS:"
+            String[] subtaskParts = subtaskData.split(";");
+            for (String subtaskPart : subtaskParts) {
+                if (!subtaskPart.isEmpty()) {
+                    SubTask subTask = SubTask.fromFileString(subtaskPart);
+                    task.subTasks.add(subTask);
+                }
+            }
+        }
+
         return task;
+    }
+
+    @Override
+    public String toString() {
+        return getDisplayString();
+    }
+}
+
+/// SubTask.java - Inner class for task breakdown
+class SubTask {
+    private String name;
+    private boolean isCompleted;
+    private int progressPercentage;
+
+    public SubTask(String name) {
+        this.name = name;
+        this.isCompleted = false;
+        this.progressPercentage = 0;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public boolean isCompleted() {
+        return isCompleted;
+    }
+
+    public void setCompleted(boolean completed) {
+        isCompleted = completed;
+        progressPercentage = completed ? 100 : 0;
+    }
+
+    public int getProgressPercentage() {
+        return progressPercentage;
+    }
+
+    public void setProgressPercentage(int progress) {
+        this.progressPercentage = Math.min(100, Math.max(0, progress));
+        if (progressPercentage == 100) {
+            isCompleted = true;
+        }
+    }
+
+    public String getDisplayString(int barLength) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(name);
+
+        if (isCompleted) {
+            sb.append(" ✓"); // Checkmark for completed
+        }
+
+        sb.append("\n      ").append(getProgressBar(barLength));
+
+        return sb.toString();
+    }
+
+    private String getProgressBar(int length) {
+        int filledLength = (int) Math.round(length * progressPercentage / 100.0);
+        StringBuilder bar = new StringBuilder();
+
+        bar.append("[");
+        for (int i = 0; i < length; i++) {
+            if (i < filledLength) {
+                bar.append("█");
+            } else {
+                bar.append("░");
+            }
+        }
+        bar.append("] ");
+        bar.append(progressPercentage).append("%");
+
+        return bar.toString();
+    }
+
+    public String toFileString() {
+        return name + "," + isCompleted + "," + progressPercentage;
+    }
+
+    public static SubTask fromFileString(String data) {
+        String[] parts = data.split(",");
+        SubTask subTask = new SubTask(parts[0]);
+        subTask.setCompleted(Boolean.parseBoolean(parts[1]));
+        subTask.setProgressPercentage(Integer.parseInt(parts[2]));
+        return subTask;
     }
 }
