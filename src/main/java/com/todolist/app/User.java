@@ -1,13 +1,8 @@
-/// package com.todolist.app;
-
 import java.util.ArrayList;
+/// CS132 Authors: Faith, Jason, Bryant
+/// User.java Represents a user of the to-do list application
+/// Purpose: Manages the user's task list
 
-/**
- * Represents a user of the to-do list application
- * Manages the user's task list
- * 
- * @author CS132 Team (Jonathon, Bryant, Faith, Jason)
- */
 public class User {
     private String username;
     private ArrayList<Task> tasks;
