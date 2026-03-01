@@ -1,134 +1,178 @@
-/// package com.todolist.app;
-
-import java.util.Scanner;
+import java.util.ArrayList;
+/// CS132 Authors: Faith, Jason, Bryant
+/// ToDoListApp.java - Business Logic Layer
+/// Purpose: Handles core application logic including:
+/// Task 1. Managing tasks and completed tasks
+/// Task 2. Coordinating between User object and Task objects
+/// Task 3. Processing user commands (without UI) - UI is stored within 'Main'
+/// Task 4. Data validation and business rules
 
 public class ToDoListApp {
-    // NOTE: Current user session data - holds the logged-in user's information and
-    // tasks
-    // This is shared across all methods to maintain application state
-    // OOP Encapsulation Object composition.
-    private static User currentUser;
+    // Reference to current user and their data. Uses OOP composition to manage user's tasks
+    private User currentUser;
+    
+    // Separate list for completed tasks for quick access
+    private ArrayList<Task> completedTasks;
 
-    // NOTE: Single Scanner instance for all user input
-    // Created once and reused to prevent resource leaks and input conflicts
-    private static Scanner scanner = new Scanner(System.in);
+    /// Constructor initializes app with a specific user
+    public ToDoListApp(User user) {
+        this.currentUser = user;
+        this.completedTasks = new ArrayList<>();
+        // Initialize completed tasks from user's existing tasks
+        updateCompletedTasks();
+    }
 
-    public static void main(String[] args) {
-        System.out.println("~~~ To-Do List Application ~~~\n");
-
-        // NOTE: Authenticate user before showing main menu
-        // Ensures we know who is using the application
-        // TODO: Implement login system - should verify user credentials
-        login(); // OOP: Method call
-
-        // NOTE: Main program loop - keeps application running until user chooses to
-        // exit
-        boolean running = true;
-        while (running) {
-            displayMenu(); // OOP: Abstraction of methood
-            int choice = getUserChoice(); // OOP: Method call and returns value
-
-            switch (choice) {
-                case 1:
-                    viewTasks();
-                    break;
-                case 2:
-                    addTask();
-                    break;
-                case 3:
-                    completeTask();
-                    break;
-                case 4:
-                    removeTask();
-                    break;
-                case 5:
-                    viewCompletedTasks();
-                    break;
-                case 6:
-                    saveAndExit();
-                    running = false; // Exit the loop
-                    break;
-                default:
-                    // Error-Proofing. This will handle invalid menu selections 
-                    System.out.println("Invalid option. Please try again.");
+    /// Displays all incomplete tasks for the current user
+    public void displayTasks() {
+        ArrayList<Task> tasks = currentUser.getIncompleteTasks();
+        if (tasks.isEmpty()) {
+            System.out.println("No tasks available.");
+        } else {
+            for (int i = 0; i < tasks.size(); i++) {
+                Task task = tasks.get(i);
+                System.out.println((i + 1) + ". " + task.getTitle() + 
+                                 " - " + task.getDescription());
             }
         }
-        // This cleans up resources before program termination // OOP: resource management. 
-        scanner.close();
     }
 
-    private static void displayMenu() {
-        System.out.println("\n=== Main Menu ===");
-        System.out.println("1. View To-Do List");
-        System.out.println("2. Add New Task");
-        System.out.println("3. Mark Task as Completed");
-        System.out.println("4. Remove Task");
-        System.out.println("5. View Completed Tasks");
-        System.out.println("6. Save and Exit");
-        System.out.print("Enter your choice: ");
+    /// Creates and adds a new task for the current user
+    public void addNewTask(String title, String description) {
+        // Create new Task object and add to user's list
+        Task newTask = new Task(title, description);
+        currentUser.addTask(newTask);
     }
 
-    private static int getUserChoice() {
-        // Exception handling section / Try-catch block prevents NumberFormatException from crashing the program
-        try {
-            return Integer.parseInt(scanner.nextLine());
-        } catch (NumberFormatException e) {
-            // Handles non numeric input
-            // Returns -1 which will trigger default case in menu switch
-            // Exception Handling. Graceful degradation, program continues running.
-            return -1;
+    ///  Handles task completion logic
+    public void completeTask() {
+        ArrayList<Task> incompleteTasks = currentUser.getIncompleteTasks();
+        
+        if (incompleteTasks.isEmpty()) {
+            System.out.println("No tasks to complete.");
+            return;
+        }
+        
+        // Display available tasks for completion
+        System.out.println("Select task to complete:");
+        for (int i = 0; i < incompleteTasks.size(); i++) {
+            Task task = incompleteTasks.get(i);
+            System.out.println((i + 1) + ". " + task.getTitle() + 
+                             " - " + task.getDescription());
+        }
+        
+        // Input handling would be done in UI layer (Main.java)
+        System.out.println("Please enter task number in the UI layer");
+    }
+
+    /// Handles task removal logic
+    public void removeTask() {
+        ArrayList<Task> tasks = currentUser.getAllTasks();
+        
+        if (tasks.isEmpty()) {
+            System.out.println("No tasks to remove.");
+            return;
+        }
+        
+        // Display all tasks for removal selection
+        System.out.println("Select task to remove:");
+        for (int i = 0; i < tasks.size(); i++) {
+            Task task = tasks.get(i);
+            String status = task.isCompleted() ? "[COMPLETED]" : "[PENDING]";
+            System.out.println((i + 1) + ". " + status + " " + 
+                             task.getTitle() + " - " + task.getDescription());
+        }
+        
+        System.out.println("Please enter task number in the UI layer");
+    }
+
+    /// Displays all completed tasks
+    public void displayCompletedTasks() {
+        updateCompletedTasks(); // Refresh the list
+        if (completedTasks.isEmpty()) {
+            System.out.println("No completed tasks.");
+        } else {
+            for (int i = 0; i < completedTasks.size(); i++) {
+                Task task = completedTasks.get(i);
+                System.out.println((i + 1) + ". " + task.getTitle() + 
+                                 " - " + task.getDescription());
+            }
         }
     }
 
-    private static void login() {
-        System.out.print("Enter username: ");
-        String username = scanner.nextLine();
-        currentUser = new User(username); // OOP - constructor call (object creation)
-        System.out.println("Welcome, " + username + "!\n");
+    /// Saves tasks to persistent storage
+    public void saveTasks() {
+        // Placeholder for file saving logic
+        System.out.println("Saving " + currentUser.getUsername() + "'s tasks...");
+        // FileManager.saveTasks(currentUser.getUsername(), currentUser.getAllTasks());
     }
 
-    private static void viewTasks() {
-        System.out.println("\n=== Your To-Do List ===");
-        // TODO: Implement task viewing logic
-        System.out.println("No tasks available.");
+    /// Updates the completed tasks cache
+    private void updateCompletedTasks() {
+        completedTasks = currentUser.getCompletedTasks();
     }
 
-    private static void addTask() { // Collect task details from user input
-        System.out.println("\n=== Add New Task ===");
-        System.out.print("Enter task title: ");
-        String title = scanner.nextLine();
-        System.out.print("Enter task description: ");
-        String description = scanner.nextLine();
-
-        // TODO: Create new Task object and add to user's list
-        // Task newTask = new Task(title, description);
-        // currentUser.addTask(newTask);
-
-        System.out.println("Task added successfully!");
+    /// Marks a specific task as completed
+    public boolean markTaskAsCompleted(int taskIndex) {
+        ArrayList<Task> incompleteTasks = currentUser.getIncompleteTasks();
+        if (taskIndex >= 0 && taskIndex < incompleteTasks.size()) {
+            Task task = incompleteTasks.get(taskIndex);
+            task.setCompleted(true);
+            updateCompletedTasks();
+            return true;
+        }
+        return false;
     }
 
-    private static void completeTask() {
-        System.out.println("\n=== Mark Task as Completed ===");
-        // TODO: Implement task completion logic
-        System.out.println("Feature coming soon!");
+    /// Removes a specific task
+    public boolean removeTaskAtIndex(int taskIndex) {
+        ArrayList<Task> allTasks = currentUser.getAllTasks();
+        if (taskIndex >= 0 && taskIndex < allTasks.size()) {
+            boolean result = currentUser.removeTask(taskIndex);
+            updateCompletedTasks();
+            return result;
+        }
+        return false;
     }
 
-    private static void removeTask() {
-        System.out.println("\n=== Remove Task ===");
-        // TODO: Implement task removal logic
-        System.out.println("Feature coming soon!");
+    /// Displays all tasks with progress bars. Shows visual progress bars for each task
+    public void displayTasksWithProgress() {
+        ArrayList<Task> tasks = currentUser.getAllTasks();
+        if (tasks.isEmpty()) {
+            System.out.println("No tasks available.");
+        } else {
+            for (int i = 0; i < tasks.size(); i++) {
+                Task task = tasks.get(i);
+                System.out.println((i + 1) + ". " + task.getDisplayString());
+                System.out.println(); // Add blank line between tasks
+            }
+        }
     }
 
-    private static void viewCompletedTasks() {
-        System.out.println("\n=== Completed Tasks ===");
-        // TODO: Implement completed task viewing logic
-        System.out.println("No completed tasks.");
+    /// Updates task progress.  Allows updating progress percentage for tasks
+    public void updateTaskProgress(int taskIndex, int progress) {
+        ArrayList<Task> tasks = currentUser.getAllTasks();
+        if (taskIndex >= 0 && taskIndex < tasks.size()) {
+            Task task = tasks.get(taskIndex);
+            // Validate progress range
+            if (progress >= 0 && progress <= 100) {
+                System.out.println("Updating progress for: " + task.getTitle() + " to " + progress + "%");
+            } else {
+                System.out.println("Progress must be between 0 and 100");
+            }
+        }
     }
 
-    private static void saveAndExit() {
-        System.out.println("\nSaving your tasks...");
-        // TODO: Save tasks to file using FileManager
-        System.out.println("Tasks saved successfully!");
-        System.out.println("Goodbye!");
+    // Getters for data access
+    public User getCurrentUser() {
+        return currentUser;
+    }
+
+    public ArrayList<Task> getAllTasks() {
+        return currentUser.getAllTasks();
+    }
+
+    public ArrayList<Task> getCompletedTasks() {
+        updateCompletedTasks();
+        return completedTasks;
     }
 }
