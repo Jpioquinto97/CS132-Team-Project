@@ -1,4 +1,5 @@
-package/// CS132 Authors: Faith, Jason, Bryant
+
+/// CS132 Authors: Faith, Jason, Bryant
 // FileManager.java - File I/O Operations
 /// Purpose: Manages all file input and output operations for the application
 // Handles saving and loading user tasks to/from persistent storage
