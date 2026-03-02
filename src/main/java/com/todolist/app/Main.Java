@@ -5,7 +5,6 @@ import java.util.ArrayList;
 
 /// CS132 Authors: Faith, Jason, Bryant
 /// Main,java is intended to the the UI layer of the application
-/// 
 /// Purpose: Handles all under interface operations including:
 /// Task 1. Displaying menus and messages
 /// Task 2. Getting user input
