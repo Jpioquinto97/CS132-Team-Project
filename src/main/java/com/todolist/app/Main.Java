@@ -93,7 +93,7 @@ public class Main {
 
         // Validate username is not empty
         while (username.isEmpty()) {
-            System.out.print("❌ Username cannot be empty. Enter username: ");
+            System.out.print(" Username cannot be empty. Enter username: ");
             username = scanner.nextLine().trim();
         }
 
@@ -117,7 +117,7 @@ public class Main {
 
     /// Loads users tasks from file with corresponding messages
 private static void loadUserTasks(User user) {
-    System.out.println("Loading your tasks...");  // ← CORRECT SYNTAX
+    System.out.println("Loading your tasks..."); 
     boolean loaded = FileManager.loadTasks(user);
     
     if (!loaded) {
