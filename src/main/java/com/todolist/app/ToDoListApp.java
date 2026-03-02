@@ -1,5 +1,5 @@
 import java.util.ArrayList;
-/// CS132 Authors: Faith, Jason, Bryant
+/// CS132 Authors: Faith, Jason, Bryant, Jonathon
 /// ToDoListApp.java - Business Logic Layer
 /// Purpose: Handles core application logic including:
 /// Task 1. Managing tasks and completed tasks
@@ -43,7 +43,7 @@ public class ToDoListApp {
         currentUser.addTask(newTask);
     }
 
-    ///  Handles task completion logic
+    /// Handles task completion logic
     public void completeTask() {
         ArrayList<Task> incompleteTasks = currentUser.getIncompleteTasks();
         
@@ -60,7 +60,7 @@ public class ToDoListApp {
                              " - " + task.getDescription());
         }
         
-        // Input handling would be done in UI layer (Main.java)
+        // Input handling is done in UI layer (Main.java)
         System.out.println("Please enter task number in the UI layer");
     }
 
@@ -82,6 +82,7 @@ public class ToDoListApp {
                              task.getTitle() + " - " + task.getDescription());
         }
         
+        // Input handling is done in UI layer (Main.java)
         System.out.println("Please enter task number in the UI layer");
     }
 
@@ -99,11 +100,10 @@ public class ToDoListApp {
         }
     }
 
-    /// Saves tasks to persistent storage
+    /// Saves tasks to persistent storage via FileManager
     public void saveTasks() {
-        // Placeholder for file saving logic
         System.out.println("Saving " + currentUser.getUsername() + "'s tasks...");
-        // FileManager.saveTasks(currentUser.getUsername(), currentUser.getAllTasks());
+        FileManager.saveTasks(currentUser);
     }
 
     /// Updates the completed tasks cache
@@ -134,7 +134,7 @@ public class ToDoListApp {
         return false;
     }
 
-    /// Displays all tasks with progress bars. Shows visual progress bars for each task
+    /// Displays all tasks with progress bars
     public void displayTasksWithProgress() {
         ArrayList<Task> tasks = currentUser.getAllTasks();
         if (tasks.isEmpty()) {
@@ -148,14 +148,20 @@ public class ToDoListApp {
         }
     }
 
-    /// Updates task progress.  Allows updating progress percentage for tasks
+    /// Updates task progress percentage - actually sets the value on the task
     public void updateTaskProgress(int taskIndex, int progress) {
         ArrayList<Task> tasks = currentUser.getAllTasks();
         if (taskIndex >= 0 && taskIndex < tasks.size()) {
             Task task = tasks.get(taskIndex);
-            // Validate progress range
             if (progress >= 0 && progress <= 100) {
-                System.out.println("Updating progress for: " + task.getTitle() + " to " + progress + "%");
+                task.setProgressPercentage(progress);
+                System.out.println("Progress updated for: " + task.getTitle() + " to " + progress + "%");
+                // Auto mark complete if progress hits 100
+                if (progress == 100) {
+                    task.setCompleted(true);
+                    updateCompletedTasks();
+                    System.out.println(task.getTitle() + " marked as completed!");
+                }
             } else {
                 System.out.println("Progress must be between 0 and 100");
             }
