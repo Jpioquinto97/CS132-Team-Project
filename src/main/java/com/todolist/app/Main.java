@@ -178,52 +178,62 @@ public class Main {
     private static void markTaskCompleted() {
         System.out.println("\n===== MARK TASK AS COMPLETED =====");
 
-        // Get incomplete tasks from the app's business logic
-        ArrayList<Task> tasks = app.getAllTasks();
-        ArrayList<Task> incompleteTasks = new ArrayList<>();
+        boolean marking = true;
+        while (marking) {
+            // Get incomplete tasks from the app's business logic
+            ArrayList<Task> tasks = app.getAllTasks();
+            ArrayList<Task> incompleteTasks = new ArrayList<>();
 
-        // Filter incomplete tasks
-        for (Task task : tasks) {
-            if (!task.isCompleted()) {
-                incompleteTasks.add(task);
-            }
-        }
-
-        if (incompleteTasks.isEmpty()) {
-            System.out.println("No tasks to complete.");
-            return;
-        }
-
-        // Display incomplete tasks
-        System.out.println("Select a task to mark as completed:");
-        for (int i = 0; i < incompleteTasks.size(); i++) {
-            System.out.println("   " + (i + 1) + ") " + incompleteTasks.get(i).getTitle());
-        }
-
-        System.out.print("Enter task number: ");
-        try {
-            int choice = Integer.parseInt(scanner.nextLine()) - 1;
-
-            // Find the actual task index in the complete list
-            int actualIndex = -1;
-            int incompleteCount = 0;
-            for (int i = 0; i < tasks.size(); i++) {
-                if (!tasks.get(i).isCompleted()) {
-                    if (incompleteCount == choice) {
-                        actualIndex = i;
-                        break;
-                    }
-                    incompleteCount++;
+            // Filter incomplete tasks
+            for (Task task : tasks) {
+                if (!task.isCompleted()) {
+                    incompleteTasks.add(task);
                 }
             }
 
-            if (actualIndex >= 0 && app.markTaskAsCompleted(actualIndex)) {
-                System.out.println("Task marked as completed! Great job!");
-            } else {
-                System.out.println("Invalid selection.");
+            if (incompleteTasks.isEmpty()) {
+                System.out.println("No tasks to complete.");
+                return;
             }
-        } catch (Exception e) {
-            System.out.println("Invalid selection. Please enter a number.");
+
+            // Display incomplete tasks
+            System.out.println("Select a task to mark as completed (or enter 0 to go back):");
+            for (int i = 0; i < incompleteTasks.size(); i++) {
+                System.out.println("   " + (i + 1) + ") " + incompleteTasks.get(i).getTitle());
+            }
+
+            System.out.print("Enter task number: ");
+            try {
+                int choice = Integer.parseInt(scanner.nextLine()) - 1;
+
+                // 0 entered means go back to main menu
+                if (choice == -1) {
+                    marking = false;
+                    break;
+                }
+
+                // Find the actual task index in the complete list
+                int actualIndex = -1;
+                int incompleteCount = 0;
+                for (int i = 0; i < tasks.size(); i++) {
+                    if (!tasks.get(i).isCompleted()) {
+                        if (incompleteCount == choice) {
+                            actualIndex = i;
+                            break;
+                        }
+                        incompleteCount++;
+                    }
+                }
+
+                if (actualIndex >= 0 && app.markTaskAsCompleted(actualIndex)) {
+                    System.out.println("Task marked as completed! Great job!");
+                } else {
+                    System.out.println("Invalid selection.");
+                }
+
+            } catch (Exception e) {
+                System.out.println("Invalid selection. Please enter a number.");
+            }
         }
     }
 
