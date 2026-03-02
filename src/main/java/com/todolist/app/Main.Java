@@ -1,4 +1,3 @@
-// package com.todolist.app;
 
 import java.util.Scanner;
 import java.util.ArrayList;
