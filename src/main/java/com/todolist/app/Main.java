@@ -1,10 +1,9 @@
-
 import java.util.Scanner;
 import java.util.ArrayList;
 
-/// CS132 Authors: Faith, Jason, Bryant
-/// Main,java is intended to the the UI layer of the application
-/// Purpose: Handles all under interface operations including:
+/// CS132 Authors: Faith, Jason, Bryant, Jonathon
+/// Main.java is intended to be the UI layer of the application
+/// Purpose: Handles all user interface operations including:
 /// Task 1. Displaying menus and messages
 /// Task 2. Getting user input
 /// Task 3. Error handling
@@ -72,18 +71,19 @@ public class Main {
         scanner.close();
     }
 
-    ///Displays welcome banner when application starts
-   private static void displayWelcomeBanner() {
-    System.out.println("===============================");
-    System.out.println("|         Godspeed            |");
-    System.out.println("|     The To-Do List App      |");
-    System.out.println("|                             |");
-    System.out.println("|         Welcome!            |");
-    System.out.println("|    Ready to complete your   |");
-    System.out.println("|          tasks?             |");
-    System.out.println("|                             |");
-    System.out.println("===============================\n");
-   }
+    /// Displays welcome banner when application starts
+    private static void displayWelcomeBanner() {
+        System.out.println("===============================");
+        System.out.println("|         Godspeed            |");
+        System.out.println("|     The To-Do List App      |");
+        System.out.println("|                             |");
+        System.out.println("|         Welcome!            |");
+        System.out.println("|    Ready to complete your   |");
+        System.out.println("|          tasks?             |");
+        System.out.println("|                             |");
+        System.out.println("===============================\n");
+    }
+
     private static User login() {
         System.out.println("=== LOGIN ===");
         System.out.print("Enter username to log in: ");
@@ -114,18 +114,18 @@ public class Main {
     }
 
     /// Loads users tasks from file with corresponding messages
-private static void loadUserTasks(User user) {
-    System.out.println("Loading your tasks..."); 
-    boolean loaded = FileManager.loadTasks(user);
-    
-    if (!loaded) {
-        System.out.println("No existing tasks found. Starting fresh!");
-    } else if (user.getTaskCount() == 0) {
-        System.out.println("Your task list is empty.");
-    } else {
-        System.out.println("Loaded " + user.getTaskCount() + " task(s)!");
+    private static void loadUserTasks(User user) {
+        System.out.println("Loading your tasks..."); 
+        boolean loaded = FileManager.loadTasks(user);
+        
+        if (!loaded) {
+            System.out.println("No existing tasks found. Starting fresh!");
+        } else if (user.getTaskCount() == 0) {
+            System.out.println("Your task list is empty.");
+        } else {
+            System.out.println("Loaded " + user.getTaskCount() + " task(s)!");
+        }
     }
-}
 
     /// Displays the main menu options to user
     private static void printMenu() {
@@ -163,6 +163,12 @@ private static void loadUserTasks(User user) {
 
         System.out.print("Enter task description: ");
         String description = scanner.nextLine().trim();
+
+        // Validate description is not empty
+        while (description.isEmpty()) {
+            System.out.print("Description cannot be empty. Enter task description: ");
+            description = scanner.nextLine().trim();
+        }
 
         app.addNewTask(title, description);
         System.out.println("Task added successfully!");
