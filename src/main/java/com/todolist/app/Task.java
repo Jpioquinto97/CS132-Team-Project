@@ -1,4 +1,4 @@
-/// CS132 Authors: Faith, Jason, Bryant
+/// CS132 Authors: Faith, Jason, Bryant, Jonathon
 /// Task.java - Data Model with Progress Tracking
 /// Purpose: Represents a single task with progress tracking capability
 
@@ -12,7 +12,6 @@ public class Task {
     private ArrayList<SubTask> subTasks; // Subtasks for detailed tracking
 
     /// Constructor creates a new incomplete task
-
     public Task(String title, String description) {
         this.title = title;
         this.description = description;
@@ -38,12 +37,19 @@ public class Task {
         return progressPercentage;
     }
 
+    /// Sets progress percentage directly - validates range 0-100
+    public void setProgressPercentage(int progress) {
+        this.progressPercentage = Math.min(100, Math.max(0, progress));
+        if (this.progressPercentage == 100) {
+            isCompleted = true;
+        }
+    }
+
     public ArrayList<SubTask> getSubTasks() {
         return subTasks;
     }
 
     /// Sets completion status and updates progress
-
     public void setCompleted(boolean completed) {
         isCompleted = completed;
         if (completed) {
@@ -56,7 +62,6 @@ public class Task {
     }
 
     /// Adds a subtask to this task
-
     public void addSubTask(SubTask subTask) {
         subTasks.add(subTask);
         updateProgress(); // Recalculate progress when subtask added
@@ -83,7 +88,6 @@ public class Task {
     }
 
     /// Creates a visual progress bar
-
     public String getProgressBar(int length) {
         int filledLength = (int) Math.round(length * progressPercentage / 100.0);
         StringBuilder bar = new StringBuilder();
@@ -103,7 +107,6 @@ public class Task {
     }
 
     /// Returns formatted string with progress bar
-
     public String getDisplayString() {
         StringBuilder display = new StringBuilder();
 
@@ -131,7 +134,6 @@ public class Task {
     }
 
     /// Converts task to string for file storage
-
     public String toFileString() {
         StringBuilder sb = new StringBuilder();
         sb.append(title).append("|").append(description).append("|")
@@ -149,7 +151,6 @@ public class Task {
     }
 
     /// Creates Task object from file string
-
     public static Task fromFileString(String line) {
         String[] parts = line.split("\\|");
         Task task = new Task(parts[0], parts[1]);
