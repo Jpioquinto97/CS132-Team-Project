@@ -20,19 +20,36 @@ public class Task {
         this.subTasks = new ArrayList<>();
     }
 
-    // Getters and setters
+    // ─────────────────────────────────────────────
+    // GETTERS AND SETTERS
+    // ─────────────────────────────────────────────
+
+    /// Returns the task title
     public String getTitle() {
         return title;
     }
 
+    /// Updates the task title
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    /// Returns the task description
     public String getDescription() {
         return description;
     }
 
+    /// Updates the task description
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    /// Returns whether the task is completed
     public boolean isCompleted() {
         return isCompleted;
     }
 
+    /// Returns the current progress percentage (0-100)
     public int getProgressPercentage() {
         return progressPercentage;
     }
@@ -45,11 +62,12 @@ public class Task {
         }
     }
 
+    /// Returns the list of subtasks
     public ArrayList<SubTask> getSubTasks() {
         return subTasks;
     }
 
-    /// Sets completion status and updates progress
+    /// Sets completion status and updates progress accordingly
     public void setCompleted(boolean completed) {
         isCompleted = completed;
         if (completed) {
@@ -61,13 +79,17 @@ public class Task {
         }
     }
 
+    // ─────────────────────────────────────────────
+    // SUBTASK AND PROGRESS METHODS
+    // ─────────────────────────────────────────────
+
     /// Adds a subtask to this task
     public void addSubTask(SubTask subTask) {
         subTasks.add(subTask);
         updateProgress(); // Recalculate progress when subtask added
     }
 
-    /// Updates progress percentage based on subtasks
+    /// Updates progress percentage based on subtask completion
     public void updateProgress() {
         if (subTasks.isEmpty()) {
             // If no subtasks, progress is either 0 or 100
@@ -87,7 +109,7 @@ public class Task {
         }
     }
 
-    /// Creates a visual progress bar
+    /// Creates a visual progress bar string of the given length
     public String getProgressBar(int length) {
         int filledLength = (int) Math.round(length * progressPercentage / 100.0);
         StringBuilder bar = new StringBuilder();
@@ -106,7 +128,7 @@ public class Task {
         return bar.toString();
     }
 
-    /// Returns formatted string with progress bar
+    /// Returns a formatted string with title, description, progress bar, and subtasks
     public String getDisplayString() {
         StringBuilder display = new StringBuilder();
 
@@ -133,7 +155,7 @@ public class Task {
         return display.toString();
     }
 
-    /// Converts task to string for file storage
+    /// Converts task to a pipe-separated string for file storage
     public String toFileString() {
         StringBuilder sb = new StringBuilder();
         sb.append(title).append("|").append(description).append("|")
@@ -150,7 +172,7 @@ public class Task {
         return sb.toString();
     }
 
-    /// Creates Task object from file string
+    /// Creates a Task object from a pipe-separated file string
     public static Task fromFileString(String line) {
         String[] parts = line.split("\\|");
         Task task = new Task(parts[0], parts[1]);
@@ -159,7 +181,7 @@ public class Task {
 
         // Load subtasks if present
         if (parts.length > 4 && parts[4].startsWith("SUBTASKS:")) {
-            String subtaskData = parts[4].substring(9); // Remove "SUBTASKS:"
+            String subtaskData = parts[4].substring(9); // Remove "SUBTASKS:" prefix
             String[] subtaskParts = subtaskData.split(";");
             for (String subtaskPart : subtaskParts) {
                 if (!subtaskPart.isEmpty()) {
@@ -178,12 +200,13 @@ public class Task {
     }
 }
 
-/// SubTask.java - Inner class for task breakdown
+/// SubTask - Inner class for task breakdown
 class SubTask {
     private String name;
     private boolean isCompleted;
     private int progressPercentage;
 
+    /// Constructor creates a new incomplete subtask
     public SubTask(String name) {
         this.name = name;
         this.isCompleted = false;
@@ -198,6 +221,7 @@ class SubTask {
         return isCompleted;
     }
 
+    /// Sets completion status and updates progress to match
     public void setCompleted(boolean completed) {
         isCompleted = completed;
         progressPercentage = completed ? 100 : 0;
@@ -207,6 +231,7 @@ class SubTask {
         return progressPercentage;
     }
 
+    /// Sets progress percentage, validates range 0-100
     public void setProgressPercentage(int progress) {
         this.progressPercentage = Math.min(100, Math.max(0, progress));
         if (progressPercentage == 100) {
@@ -214,12 +239,13 @@ class SubTask {
         }
     }
 
+    /// Returns formatted display string with progress bar
     public String getDisplayString(int barLength) {
         StringBuilder sb = new StringBuilder();
         sb.append(name);
 
         if (isCompleted) {
-            sb.append(" ✓"); // Checkmark for completed
+            sb.append(" ✓");
         }
 
         sb.append("\n      ").append(getProgressBar(barLength));
@@ -227,6 +253,7 @@ class SubTask {
         return sb.toString();
     }
 
+    /// Creates a visual progress bar of the given length
     private String getProgressBar(int length) {
         int filledLength = (int) Math.round(length * progressPercentage / 100.0);
         StringBuilder bar = new StringBuilder();
@@ -245,10 +272,12 @@ class SubTask {
         return bar.toString();
     }
 
+    /// Converts subtask to a comma-separated string for file storage
     public String toFileString() {
         return name + "," + isCompleted + "," + progressPercentage;
     }
 
+    /// Creates a SubTask object from a comma-separated string
     public static SubTask fromFileString(String data) {
         String[] parts = data.split(",");
         SubTask subTask = new SubTask(parts[0]);

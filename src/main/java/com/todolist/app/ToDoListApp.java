@@ -9,9 +9,10 @@ import java.util.ArrayList;
 /// Task 4. Data validation and business rules
 
 public class ToDoListApp {
-    // Reference to current user and their data. Uses OOP composition to manage user's tasks
+    // Reference to current user and their data
+    // Uses OOP composition to manage user's tasks
     private User currentUser;
-    
+
     // Separate list for completed tasks for quick access
     private ArrayList<Task> completedTasks;
 
@@ -31,8 +32,8 @@ public class ToDoListApp {
         } else {
             for (int i = 0; i < tasks.size(); i++) {
                 Task task = tasks.get(i);
-                System.out.println((i + 1) + ". " + task.getTitle() + 
-                                 " - " + task.getDescription());
+                System.out.println((i + 1) + ". " + task.getTitle()
+                        + " - " + task.getDescription());
             }
         }
     }
@@ -44,45 +45,76 @@ public class ToDoListApp {
         currentUser.addTask(newTask);
     }
 
+    /// Updates the title of an existing task at the given index.
+    /// Validates the index before making any changes.
+    public boolean editTaskTitle(int taskIndex, String newTitle) {
+        ArrayList<Task> tasks = currentUser.getAllTasks();
+
+        // Validate index range before accessing the list
+        if (taskIndex < 0 || taskIndex >= tasks.size()) {
+            System.out.println("Invalid task number.");
+            return false;
+        }
+
+        tasks.get(taskIndex).setTitle(newTitle);
+        return true;
+    }
+
+    /// Updates the description of an existing task at the given index.
+    /// Validates the index before making any changes.
+    public boolean editTaskDescription(int taskIndex, String newDescription) {
+        ArrayList<Task> tasks = currentUser.getAllTasks();
+
+        // Validate index range before accessing the list
+        if (taskIndex < 0 || taskIndex >= tasks.size()) {
+            System.out.println("Invalid task number.");
+            return false;
+        }
+
+        tasks.get(taskIndex).setDescription(newDescription);
+        return true;
+    }
+
+    /// Searches all tasks (both complete and incomplete) for a keyword.
+    /// The search checks both the title and description, case-insensitive.
+    /// Returns an ArrayList of matching Task objects.
+    public ArrayList<Task> searchTasks(String keyword) {
+        ArrayList<Task> results = new ArrayList<>();
+        ArrayList<Task> allTasks = currentUser.getAllTasks();
+
+        // Convert keyword to lowercase once for efficient comparison
+        String lowerKeyword = keyword.toLowerCase();
+
+        // Check each task's title and description for the keyword
+        for (Task task : allTasks) {
+            boolean titleMatch = task.getTitle().toLowerCase().contains(lowerKeyword);
+            boolean descMatch = task.getDescription().toLowerCase().contains(lowerKeyword);
+
+            if (titleMatch || descMatch) {
+                results.add(task);
+            }
+        }
+
+        return results;
+    }
+
     /// Handles task completion logic
     public void completeTask() {
         ArrayList<Task> incompleteTasks = currentUser.getIncompleteTasks();
-        
+
         if (incompleteTasks.isEmpty()) {
             System.out.println("No tasks to complete.");
             return;
         }
-        
+
         // Display available tasks for completion
         System.out.println("Select task to complete:");
         for (int i = 0; i < incompleteTasks.size(); i++) {
             Task task = incompleteTasks.get(i);
-            System.out.println((i + 1) + ". " + task.getTitle() + 
-                             " - " + task.getDescription());
+            System.out.println((i + 1) + ". " + task.getTitle()
+                    + " - " + task.getDescription());
         }
-        
-        // Input handling is done in UI layer (Main.java)
-        System.out.println("Please enter task number in the UI layer");
-    }
 
-    /// Handles task removal logic
-    public void removeTask() {
-        ArrayList<Task> tasks = currentUser.getAllTasks();
-        
-        if (tasks.isEmpty()) {
-            System.out.println("No tasks to remove.");
-            return;
-        }
-        
-        // Display all tasks for removal selection
-        System.out.println("Select task to remove:");
-        for (int i = 0; i < tasks.size(); i++) {
-            Task task = tasks.get(i);
-            String status = task.isCompleted() ? "[COMPLETED]" : "[PENDING]";
-            System.out.println((i + 1) + ". " + status + " " + 
-                             task.getTitle() + " - " + task.getDescription());
-        }
-        
         // Input handling is done in UI layer (Main.java)
         System.out.println("Please enter task number in the UI layer");
     }
@@ -95,8 +127,8 @@ public class ToDoListApp {
         } else {
             for (int i = 0; i < completedTasks.size(); i++) {
                 Task task = completedTasks.get(i);
-                System.out.println((i + 1) + ". " + task.getTitle() + 
-                                 " - " + task.getDescription());
+                System.out.println((i + 1) + ". " + task.getTitle()
+                        + " - " + task.getDescription());
             }
         }
     }
@@ -124,7 +156,7 @@ public class ToDoListApp {
         return false;
     }
 
-    /// Removes a specific task
+    /// Removes a specific task at the given index
     public boolean removeTaskAtIndex(int taskIndex) {
         ArrayList<Task> allTasks = currentUser.getAllTasks();
         if (taskIndex >= 0 && taskIndex < allTasks.size()) {
@@ -149,7 +181,7 @@ public class ToDoListApp {
         }
     }
 
-    /// Updates task progress percentage - actually sets the value on the task
+    /// Updates task progress percentage
     public void updateTaskProgress(int taskIndex, int progress) {
         ArrayList<Task> tasks = currentUser.getAllTasks();
         if (taskIndex >= 0 && taskIndex < tasks.size()) {
@@ -164,7 +196,7 @@ public class ToDoListApp {
                     System.out.println(task.getTitle() + " marked as completed!");
                 }
             } else {
-                System.out.println("Progress must be between 0 and 100");
+                System.out.println("Invalid progress value. Must be between 0 and 100.");
             }
         }
     }

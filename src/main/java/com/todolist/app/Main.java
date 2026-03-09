@@ -8,7 +8,7 @@ import java.util.ArrayList;
 /// Task 1. Displaying menus and messages
 /// Task 2. Getting user input
 /// Task 3. Error handling
-/// Task 4. Frontline for application flow 
+/// Task 4. Frontline for application flow
 
 public class Main {
     // Single Scanner instance for all user input
@@ -64,8 +64,16 @@ public class Main {
                 case "p":
                     viewTasksWithProgress();
                     break;
+                case "8":
+                case "e":
+                    editTask();
+                    break;
+                case "9":
+                case "f":
+                    searchTasks();
+                    break;
                 default:
-                    System.out.println("Invalid option. Please try again.");
+                    System.out.println("Invalid option. Please enter a number from 1-9.");
             }
         }
 
@@ -85,40 +93,85 @@ public class Main {
         System.out.println("===============================\n");
     }
 
+    /// Handles user login with password authentication.
+    /// If the user is new, prompts them to create a password and saves credentials.
+    /// If the user exists, verifies their password against the stored credentials file.
     private static User login() {
         System.out.println("=== LOGIN ===");
-        System.out.print("Enter username to log in: ");
+        System.out.print("Enter username: ");
         String username = scanner.nextLine().trim();
 
         // Validate username is not empty
         while (username.isEmpty()) {
-            System.out.print(" Username cannot be empty. Enter username: ");
+            System.out.print("Username cannot be empty. Enter username: ");
             username = scanner.nextLine().trim();
         }
 
-        // Create user object
-        User user = new User(username);
+        // Check if this user already has saved credentials
+        boolean userExists = FileManager.credentialsExist(username);
 
-        // Display personalized welcome message
-        System.out.println("\n================================================");
-        System.out.println("    WELCOME BACK, " + username.toUpperCase() + "!");
-        System.out.println("    Your personal task manager");
-        System.out.println("    is ready for you!");
-        System.out.println("================================================\n");
+        if (userExists) {
+            // Returning user - verify password
+            System.out.print("Enter password: ");
+            String password = scanner.nextLine().trim();
 
-        return user;
-    }
+            // Keep prompting until password is correct
+            while (!FileManager.verifyPassword(username, password)) {
+                System.out.println("Incorrect password. Please try again.");
+                System.out.print("Enter password: ");
+                password = scanner.nextLine().trim();
+            }
 
-    /// Helper Method to pad strings for banner formatting.
-    private static String padRight(String text, int length) {
-        return String.format("%-" + length + "s", text);
+            System.out.println("\n================================================");
+            System.out.println("    WELCOME BACK, " + username.toUpperCase() + "!");
+            System.out.println("    Your personal task manager");
+            System.out.println("    is ready for you!");
+            System.out.println("================================================\n");
+
+        } else {
+            // New user - create a password
+            System.out.println("New user detected. Please create a password.");
+            System.out.print("Enter new password: ");
+            String password = scanner.nextLine().trim();
+
+            // Validate password is not empty
+            while (password.isEmpty()) {
+                System.out.print("Password cannot be empty. Enter new password: ");
+                password = scanner.nextLine().trim();
+            }
+
+            // Confirm password
+            System.out.print("Confirm password: ");
+            String confirm = scanner.nextLine().trim();
+
+            // Keep prompting until passwords match
+            while (!password.equals(confirm)) {
+                System.out.println("Passwords do not match. Try again.");
+                System.out.print("Enter new password: ");
+                password = scanner.nextLine().trim();
+                System.out.print("Confirm password: ");
+                confirm = scanner.nextLine().trim();
+            }
+
+            // Save credentials to file
+            FileManager.saveCredentials(username, password);
+            System.out.println("Account created successfully!");
+
+            System.out.println("\n================================================");
+            System.out.println("    WELCOME, " + username.toUpperCase() + "!");
+            System.out.println("    Your personal task manager");
+            System.out.println("    is ready for you!");
+            System.out.println("================================================\n");
+        }
+
+        return new User(username);
     }
 
     /// Loads users tasks from file with corresponding messages
     private static void loadUserTasks(User user) {
-        System.out.println("Loading your tasks..."); 
+        System.out.println("Loading your tasks...");
         boolean loaded = FileManager.loadTasks(user);
-        
+
         if (!loaded) {
             System.out.println("No existing tasks found. Starting fresh!");
         } else if (user.getTaskCount() == 0) {
@@ -140,6 +193,8 @@ public class Main {
         System.out.println("5) View completed tasks       (D)");
         System.out.println("6) Save and exit              (S)");
         System.out.println("7) View tasks with progress   (P)");
+        System.out.println("8) Edit a task                (E)");
+        System.out.println("9) Search tasks               (F)");
         System.out.println("================================================");
         System.out.print("Select an option: ");
     }
@@ -157,6 +212,7 @@ public class Main {
         System.out.print("Enter task title: ");
         String title = scanner.nextLine().trim();
 
+        // Validate title is not empty
         while (title.isEmpty()) {
             System.out.print("Title cannot be empty. Enter task title: ");
             title = scanner.nextLine().trim();
@@ -175,13 +231,12 @@ public class Main {
         System.out.println("Task added successfully!");
     }
 
-    /// Handles marking a task as 'completed'
+    /// Handles marking a task as completed
     private static void markTaskCompleted() {
         System.out.println("\n===== MARK TASK AS COMPLETED =====");
 
         boolean marking = true;
         while (marking) {
-            // Get incomplete tasks from the app's business logic
             ArrayList<Task> tasks = app.getAllTasks();
             ArrayList<Task> incompleteTasks = new ArrayList<>();
 
@@ -205,12 +260,18 @@ public class Main {
 
             System.out.print("Enter task number: ");
             try {
-                int choice = Integer.parseInt(scanner.nextLine()) - 1;
+                int choice = Integer.parseInt(scanner.nextLine().trim()) - 1;
 
                 // 0 entered means go back to main menu
                 if (choice == -1) {
                     marking = false;
                     break;
+                }
+
+                // Validate range before accessing
+                if (choice < 0 || choice >= incompleteTasks.size()) {
+                    System.out.println("Invalid task number. Please enter a number between 1 and " + incompleteTasks.size() + ".");
+                    continue;
                 }
 
                 // Find the actual task index in the complete list
@@ -232,8 +293,8 @@ public class Main {
                     System.out.println("Invalid selection.");
                 }
 
-            } catch (Exception e) {
-                System.out.println("Invalid selection. Please enter a number.");
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a number.");
             }
         }
     }
@@ -248,7 +309,7 @@ public class Main {
             return;
         }
 
-        System.out.println("Select a task to remove:");
+        System.out.println("Select a task to remove (or enter 0 to go back):");
         for (int i = 0; i < tasks.size(); i++) {
             Task t = tasks.get(i);
             String status = t.isCompleted() ? "[COMPLETED]" : "[PENDING]";
@@ -257,18 +318,28 @@ public class Main {
 
         System.out.print("Enter task number: ");
         try {
-            int choice = Integer.parseInt(scanner.nextLine()) - 1;
+            int choice = Integer.parseInt(scanner.nextLine().trim()) - 1;
+
+            if (choice == -1) {
+                return;
+            }
+
+            if (choice < 0 || choice >= tasks.size()) {
+                System.out.println("Invalid task number. Please enter a number between 1 and " + tasks.size() + ".");
+                return;
+            }
+
             if (app.removeTaskAtIndex(choice)) {
                 System.out.println("Task removed successfully.");
             } else {
-                System.out.println("Invalid selection.");
+                System.out.println("Failed to remove task.");
             }
-        } catch (Exception e) {
-            System.out.println("Invalid selection. Please enter a number.");
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a number.");
         }
     }
 
-    /// Displays completed Tasks
+    /// Displays completed tasks
     private static void viewCompletedTasks() {
         System.out.println("\n======== COMPLETED TASKS ========");
         app.displayCompletedTasks();
@@ -280,7 +351,111 @@ public class Main {
         app.displayTasksWithProgress();
     }
 
-    /// Saves tasks and displays goodbye messages
+    /// Handles editing an existing task's title or description.
+    /// Displays all tasks, lets user pick one, then choose what to edit.
+    private static void editTask() {
+        System.out.println("\n======== EDIT TASK ========");
+
+        ArrayList<Task> tasks = app.getAllTasks();
+        if (tasks.isEmpty()) {
+            System.out.println("No tasks to edit.");
+            return;
+        }
+
+        // Display all tasks for selection
+        System.out.println("Select a task to edit (or enter 0 to go back):");
+        for (int i = 0; i < tasks.size(); i++) {
+            Task t = tasks.get(i);
+            String status = t.isCompleted() ? "[COMPLETED]" : "[PENDING]";
+            System.out.println("   " + (i + 1) + ") " + status + " " + t.getTitle() + " - " + t.getDescription());
+        }
+
+        System.out.print("Enter task number: ");
+        try {
+            int choice = Integer.parseInt(scanner.nextLine().trim()) - 1;
+
+            if (choice == -1) {
+                return;
+            }
+
+            // Validate range
+            if (choice < 0 || choice >= tasks.size()) {
+                System.out.println("Invalid task number. Please enter a number between 1 and " + tasks.size() + ".");
+                return;
+            }
+
+            Task selectedTask = tasks.get(choice);
+            System.out.println("\nEditing: " + selectedTask.getTitle());
+            System.out.println("1) Edit title");
+            System.out.println("2) Edit description");
+            System.out.println("3) Edit both");
+            System.out.print("Select an option: ");
+
+            String editChoice = scanner.nextLine().trim();
+
+            // Handle title edit
+            if (editChoice.equals("1") || editChoice.equals("3")) {
+                System.out.print("Enter new title (current: " + selectedTask.getTitle() + "): ");
+                String newTitle = scanner.nextLine().trim();
+                while (newTitle.isEmpty()) {
+                    System.out.print("Title cannot be empty. Enter new title: ");
+                    newTitle = scanner.nextLine().trim();
+                }
+                app.editTaskTitle(choice, newTitle);
+            }
+
+            // Handle description edit
+            if (editChoice.equals("2") || editChoice.equals("3")) {
+                System.out.print("Enter new description (current: " + selectedTask.getDescription() + "): ");
+                String newDesc = scanner.nextLine().trim();
+                while (newDesc.isEmpty()) {
+                    System.out.print("Description cannot be empty. Enter new description: ");
+                    newDesc = scanner.nextLine().trim();
+                }
+                app.editTaskDescription(choice, newDesc);
+            }
+
+            if (editChoice.equals("1") || editChoice.equals("2") || editChoice.equals("3")) {
+                System.out.println("Task updated successfully!");
+            } else {
+                System.out.println("Invalid option. No changes made.");
+            }
+
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a number.");
+        }
+    }
+
+    /// Handles searching tasks by keyword.
+    /// Searches both title and description for a match (case-insensitive).
+    private static void searchTasks() {
+        System.out.println("\n======== SEARCH TASKS ========");
+
+        System.out.print("Enter search keyword: ");
+        String keyword = scanner.nextLine().trim();
+
+        // Validate keyword is not empty
+        if (keyword.isEmpty()) {
+            System.out.println("Search keyword cannot be empty.");
+            return;
+        }
+
+        // Get results from business logic layer
+        ArrayList<Task> results = app.searchTasks(keyword);
+
+        if (results.isEmpty()) {
+            System.out.println("No tasks found matching \"" + keyword + "\".");
+        } else {
+            System.out.println("Found " + results.size() + " result(s) for \"" + keyword + "\":");
+            for (int i = 0; i < results.size(); i++) {
+                Task t = results.get(i);
+                String status = t.isCompleted() ? "[COMPLETED]" : "[PENDING]";
+                System.out.println("   " + (i + 1) + ") " + status + " " + t.getTitle() + " - " + t.getDescription());
+            }
+        }
+    }
+
+    /// Saves tasks and displays goodbye message
     private static void saveAndExit(User user) {
         System.out.println("\n===== SAVING & EXITING =====");
 
@@ -293,7 +468,6 @@ public class Main {
             System.out.println("Warning: There was an issue saving your tasks.");
         }
 
-        // Display personalized goodbye message
         System.out.println("\n================================================");
         System.out.println("          GOODBYE, " + user.getUsername().toUpperCase() + "!");
         System.out.println("                                                ");
