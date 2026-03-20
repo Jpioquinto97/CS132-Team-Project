@@ -1,7 +1,6 @@
 /// CS132 Authors: Faith, Jason, Bryant, Jonathon
 /// Task.java - Data Model with Progress Tracking
 /// Purpose: Represents a single task with progress tracking capability
-package com.todolist.app;
 import java.util.ArrayList;
 
 public class Task {
