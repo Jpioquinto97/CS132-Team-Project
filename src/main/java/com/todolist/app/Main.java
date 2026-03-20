@@ -1,4 +1,3 @@
-package com.todolist.app;
 import java.util.Scanner;
 import java.util.ArrayList;
 
@@ -83,19 +82,20 @@ public class Main {
     /// Displays welcome banner when application starts
     private static void displayWelcomeBanner() {
         System.out.println("===============================");
-        System.out.println("|         Godspeed            |");
+        System.out.println("|      My Life Organized      |");
         System.out.println("|     The To-Do List App      |");
         System.out.println("|                             |");
-        System.out.println("|         Welcome!            |");
-        System.out.println("|    Ready to complete your   |");
-        System.out.println("|          tasks?             |");
+        System.out.println("|          Welcome!           |");
+        System.out.println("|     Ready to complete your  |");
+        System.out.println("|           tasks?            |");
         System.out.println("|                             |");
         System.out.println("===============================\n");
     }
 
     /// Handles user login with password authentication.
     /// If the user is new, prompts them to create a password and saves credentials.
-    /// If the user exists, verifies their password against the stored credentials file.
+    /// If the user exists, verifies their password against the stored credentials
+    /// file.
     private static User login() {
         System.out.println("=== LOGIN ===");
         System.out.print("Enter username: ");
@@ -205,35 +205,59 @@ public class Main {
         app.displayTasks();
     }
 
-    /// Handles adding a new task
+    /// Handles adding a new task with cancel option
     private static void addTask() {
         System.out.println("\n======== ADD NEW TASK ========");
+        System.out.println("(Enter 0 at any prompt to cancel and return to main menu)");
+        System.out.println();
 
-        System.out.print("Enter task title: ");
+        System.out.print("Enter task title (or 0 to cancel): ");
         String title = scanner.nextLine().trim();
+
+        // Check for cancellation
+        if (title.equals("0")) {
+            System.out.println("Task creation cancelled. Returning to main menu.");
+            return;
+        }
 
         // Validate title is not empty
         while (title.isEmpty()) {
-            System.out.print("Title cannot be empty. Enter task title: ");
+            System.out.print("Title cannot be empty. Enter task title (or 0 to cancel): ");
             title = scanner.nextLine().trim();
+            if (title.equals("0")) {
+                System.out.println("Task creation cancelled. Returning to main menu.");
+                return;
+            }
         }
 
-        System.out.print("Enter task description: ");
+        System.out.print("Enter task description (or 0 to cancel): ");
         String description = scanner.nextLine().trim();
+
+        // Check for cancellation
+        if (description.equals("0")) {
+            System.out.println("Task creation cancelled. Returning to main menu.");
+            return;
+        }
 
         // Validate description is not empty
         while (description.isEmpty()) {
-            System.out.print("Description cannot be empty. Enter task description: ");
+            System.out.print("Description cannot be empty. Enter task description (or 0 to cancel): ");
             description = scanner.nextLine().trim();
+            if (description.equals("0")) {
+                System.out.println("Task creation cancelled. Returning to main menu.");
+                return;
+            }
         }
 
         app.addNewTask(title, description);
         System.out.println("Task added successfully!");
     }
 
-    /// Handles marking a task as completed
+    /// Handles marking a task as completed with cancel option
     private static void markTaskCompleted() {
         System.out.println("\n===== MARK TASK AS COMPLETED =====");
+        System.out.println("(Enter 0 to cancel and return to main menu)");
+        System.out.println();
 
         boolean marking = true;
         while (marking) {
@@ -252,25 +276,28 @@ public class Main {
                 return;
             }
 
-            // Display incomplete tasks
-            System.out.println("Select a task to mark as completed (or enter 0 to go back):");
+            // Display incomplete tasks with clear numbering
+            System.out.println("Select a task to mark as completed:");
             for (int i = 0; i < incompleteTasks.size(); i++) {
                 System.out.println("   " + (i + 1) + ") " + incompleteTasks.get(i).getTitle());
             }
-
+            System.out.println("   0) Cancel and return to main menu");
             System.out.print("Enter task number: ");
+
             try {
                 int choice = Integer.parseInt(scanner.nextLine().trim()) - 1;
 
                 // 0 entered means go back to main menu
                 if (choice == -1) {
+                    System.out.println("Operation cancelled. Returning to main menu.");
                     marking = false;
                     break;
                 }
 
                 // Validate range before accessing
                 if (choice < 0 || choice >= incompleteTasks.size()) {
-                    System.out.println("Invalid task number. Please enter a number between 1 and " + incompleteTasks.size() + ".");
+                    System.out.println(
+                            "Invalid task number. Please enter a number between 1 and " + incompleteTasks.size() + ".");
                     continue;
                 }
 
@@ -299,9 +326,11 @@ public class Main {
         }
     }
 
-    /// Handles removing a task
+    /// Handles removing a task with cancel option
     private static void removeTask() {
         System.out.println("\n========= REMOVE TASK ==========");
+        System.out.println("(Enter 0 to cancel and return to main menu)");
+        System.out.println();
 
         ArrayList<Task> tasks = app.getAllTasks();
         if (tasks.isEmpty()) {
@@ -309,18 +338,20 @@ public class Main {
             return;
         }
 
-        System.out.println("Select a task to remove (or enter 0 to go back):");
+        System.out.println("Select a task to remove:");
         for (int i = 0; i < tasks.size(); i++) {
             Task t = tasks.get(i);
             String status = t.isCompleted() ? "[COMPLETED]" : "[PENDING]";
             System.out.println("   " + (i + 1) + ") " + status + " " + t.getTitle());
         }
-
+        System.out.println("   0) Cancel and return to main menu");
         System.out.print("Enter task number: ");
+
         try {
             int choice = Integer.parseInt(scanner.nextLine().trim()) - 1;
 
             if (choice == -1) {
+                System.out.println("Operation cancelled. Returning to main menu.");
                 return;
             }
 
@@ -351,10 +382,11 @@ public class Main {
         app.displayTasksWithProgress();
     }
 
-    /// Handles editing an existing task's title or description.
-    /// Displays all tasks, lets user pick one, then choose what to edit.
+    /// Handles editing an existing task's title or description with cancel options
     private static void editTask() {
         System.out.println("\n======== EDIT TASK ========");
+        System.out.println("(Enter 0 to cancel and return to main menu)");
+        System.out.println();
 
         ArrayList<Task> tasks = app.getAllTasks();
         if (tasks.isEmpty()) {
@@ -363,18 +395,20 @@ public class Main {
         }
 
         // Display all tasks for selection
-        System.out.println("Select a task to edit (or enter 0 to go back):");
+        System.out.println("Select a task to edit:");
         for (int i = 0; i < tasks.size(); i++) {
             Task t = tasks.get(i);
             String status = t.isCompleted() ? "[COMPLETED]" : "[PENDING]";
             System.out.println("   " + (i + 1) + ") " + status + " " + t.getTitle() + " - " + t.getDescription());
         }
-
+        System.out.println("   0) Cancel and return to main menu");
         System.out.print("Enter task number: ");
+
         try {
             int choice = Integer.parseInt(scanner.nextLine().trim()) - 1;
 
             if (choice == -1) {
+                System.out.println("Operation cancelled. Returning to main menu.");
                 return;
             }
 
@@ -389,9 +423,16 @@ public class Main {
             System.out.println("1) Edit title");
             System.out.println("2) Edit description");
             System.out.println("3) Edit both");
+            System.out.println("0) Cancel and return to main menu");
             System.out.print("Select an option: ");
 
             String editChoice = scanner.nextLine().trim();
+
+            // Handle cancellation
+            if (editChoice.equals("0")) {
+                System.out.println("Edit cancelled. Returning to main menu.");
+                return;
+            }
 
             // Handle title edit
             if (editChoice.equals("1") || editChoice.equals("3")) {
@@ -426,13 +467,20 @@ public class Main {
         }
     }
 
-    /// Handles searching tasks by keyword.
-    /// Searches both title and description for a match (case-insensitive).
+    /// Handles searching tasks by keyword with cancel option
     private static void searchTasks() {
         System.out.println("\n======== SEARCH TASKS ========");
+        System.out.println("(Enter 0 to cancel and return to main menu)");
+        System.out.println();
 
-        System.out.print("Enter search keyword: ");
+        System.out.print("Enter search keyword (or 0 to cancel): ");
         String keyword = scanner.nextLine().trim();
+
+        // Check for cancellation
+        if (keyword.equals("0")) {
+            System.out.println("Search cancelled. Returning to main menu.");
+            return;
+        }
 
         // Validate keyword is not empty
         if (keyword.isEmpty()) {
